@@ -16,6 +16,28 @@ SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
 # Set up basic logging
 logging.basicConfig(filename = 'app.log', level=logging.INFO)  
 
+def extract_receipt_text_from_html(html_content):
+    print("calllllled")
+    soup = BeautifulSoup(html_content, "html.parser")
+
+    # Find the td with the style and class that match the receipt block
+    receipt_td = None
+    for td in soup.find_all("td"):
+        if "Store #100634" in td.get_text():
+            receipt_td = td
+            break
+
+    if receipt_td:
+        # Get all text and clean it up
+        text = receipt_td.get_text(separator="\n", strip=True)
+
+        # Optional: remove leading/trailing junk lines or excessive empty lines
+        lines = [line.strip() for line in text.splitlines() if line.strip()]
+        return "\n".join(lines)
+    else:
+        return "RECEIPT BLOCK NOT FOUND"
+
+
 def getEmails(): 
     # Variable creds will store the user access token. 
     # If no valid token found, we will create one. 
@@ -80,38 +102,73 @@ def getEmails():
                 if d['name'] == 'From': 
                     sender = d['value'] 
             
-            # Only look at emails fro mcertain senders
+            # Only look at emails from certain senders
             if sender in wanted_senders:
-                # Handle different payload structures
+                print(sender)
+                # Deal with different payload structures
+                # Handle multipart emails
                 if 'parts' in payload:
                     parts = payload['parts']
                     for part in parts:
-                            # Handle  multipart emails with 'text/html'
-                            if part['mimeType'] == 'text/html':
-                                data = part['body'].get('data')
-                                if data:
-                                    data = data.replace("-","+").replace("_","/") 
-                                    decoded_data = base64.b64decode(data)
-                                    # Now, the data obtained is in lxml. So, we will parse  
-                                    # it with BeautifulSoup library 
-                                    soup = BeautifulSoup(decoded_data , "lxml") 
-                                    body = soup.get_text() 
-                                    break
-                            # Handle  multipart emails with 'text/plain'
-                            elif part['mimeType'] == 'text/plain':
-                                data = part['body'].get('data')
-                                if data:
-                                    data = data.replace("-","+").replace("_","/") 
-                                    decoded_data = base64.b64decode(data)
-                                    body = decoded_data.decode('utf-8')
-                                    break
+                        # print(f"Part MIMETYPE: {part['mimeType']}")  # delete this later
+                        # Handle 'multipart/alternative' case
+                        if part['mimeType'] == 'multipart/alternative':
+                            print("MULTIPART/ALTERNATIVE TYPE")  # delete this late
+                            for subpart in part['parts']:
+                                if subpart['mimeType'] == 'text/html':
+                                    print("SUBPART HTML")  # delete this later
+                                    data = subpart['body'].get('data')
+                                    if data:
+                                        data = data.replace("-","+").replace("_","/") 
+                                        decoded_data = base64.b64decode(data)
+                                        # Now, the data obtained is in lxml. So, we will parse  
+                                        # it with BeautifulSoup library 
+                                        # soup = BeautifulSoup(decoded_data , "lxml") 
+                                        body = extract_receipt_text_from_html(decoded_data.decode('utf-8', errors='ignore'))
+                                        print(body)
+                                        break
+                                elif subpart['mimeType'] == 'text/plain':
+                                    print("SUBPART PLAIN")  # delete this later
+                                    data = subpart['body'].get('data')
+                                    if data:
+                                        data = data.replace("-","+").replace("_","/") 
+                                        decoded_data = base64.b64decode(data)
+                                        body = decoded_data.decode('utf-8')
+                                        break
+
+                        # Handle 'text/html' case
+                        elif part['mimeType'] == 'text/html':
+                            print("HTML TYPE")  # delete this late
+                            data = part['body'].get('data')
+                            if data:
+                                data = data.replace("-","+").replace("_","/") 
+                                decoded_data = base64.b64decode(data)
+                                # Now, the data obtained is in lxml. So, we will parse  
+                                # it with BeautifulSoup library 
+                                # soup = BeautifulSoup(decoded_data , "lxml") 
+                                body = extract_receipt_text_from_html(decoded_data.decode('utf-8', errors='ignore')) 
+                                print(body)
+                                break
+                        # Handle 'text/plain' case
+                        elif part['mimeType'] == 'text/plain':
+                            print("PLAIN TYPE")  # delete this late
+                            data = part['body'].get('data')
+                            if data:
+                                data = data.replace("-","+").replace("_","/") 
+                                decoded_data = base64.b64decode(data)
+                                body = decoded_data.decode('utf-8')
+                                break
                 # Handle single part emails
+                # CASE: Food Basic Receipt 
                 else:
+                    print("SINGLE PART EMAIL TYPE")  # delete this late
                     data = payload['body'].get('data')
                     if data:
                         data = data.replace("-","+").replace("_","/") 
                         decoded_data = base64.b64decode(data)
-                        body = decoded_data.decode('utf-8')
+                        # print(decoded_data.decode('utf-8', errors='ignore')[:1000])
+                        body = extract_receipt_text_from_html(decoded_data.decode('utf-8', errors='ignore'))
+                        print(body)
     
                 # Printing the subject, sender's email and message 
                 logging.info(f"Subject: {subject}") 
