@@ -16,3 +16,7 @@ staticfiles/
 
 #VSCode
 .vscode/
+
+#Token
+token.pickle
+secret/
