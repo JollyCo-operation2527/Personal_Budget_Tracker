@@ -56,6 +56,10 @@ def getEmails():
     else:
         print(f"{len(messages)} emails fetched")
   
+    # List of wanted senders (Only look at emails from these senders)
+    wanted_senders = ['Steam <noreply@steampowered.com>',
+    'Food Basics Receipts <transaction@transaction.foodbasics.ca>']
+
     # messages is a list of dictionaries where each dictionary contains a message id. 
   
     # iterate through all the messages 
@@ -68,36 +72,6 @@ def getEmails():
             # Get value of 'payload' from dictionary 'txt' 
             payload = txt['payload'] 
             headers = payload['headers'] 
-  
-            if 'parts' in payload:
-               parts = payload['parts']
-               for part in parts:
-                    # Handle  multipart emails with 'text/html'
-                    if part['mimeType'] == 'text/html':
-                        data = part['body'].get('data')
-                        if data:
-                            data = data.replace("-","+").replace("_","/") 
-                            decoded_data = base64.b64decode(data)
-                            # Now, the data obtained is in lxml. So, we will parse  
-                            # it with BeautifulSoup library 
-                            soup = BeautifulSoup(decoded_data , "lxml") 
-                            body = soup.get_text() 
-                            break
-                    # Handle  multipart emails with 'text/plain'
-                    elif part['mimeType'] == 'text/plain':
-                        data = part['body'].get('data')
-                        if data:
-                            data = data.replace("-","+").replace("_","/") 
-                            decoded_data = base64.b64decode(data)
-                            body = decoded_data.decode('utf-8')
-                            break
-            # Handle single part emails
-            else:
-                data = payload['body'].get('data')
-                if data:
-                    data = data.replace("-","+").replace("_","/") 
-                    decoded_data = base64.b64decode(data)
-                    body = decoded_data.decode('utf-8')
 
             # Look for Subject and Sender Email in the headers 
             for d in headers: 
@@ -105,13 +79,45 @@ def getEmails():
                     subject = d['value'] 
                 if d['name'] == 'From': 
                     sender = d['value'] 
-  
-            # Printing the subject, sender's email and message 
-            logging.info("Subject: ", subject) 
-            logging.info("From: ", sender) 
-            logging.info("Message: ")
-            logging.info(body) 
-            logging.info('\n') 
+            
+            # Only look at emails fro mcertain senders
+            if sender in wanted_senders:
+                # Handle different payload structures
+                if 'parts' in payload:
+                    parts = payload['parts']
+                    for part in parts:
+                            # Handle  multipart emails with 'text/html'
+                            if part['mimeType'] == 'text/html':
+                                data = part['body'].get('data')
+                                if data:
+                                    data = data.replace("-","+").replace("_","/") 
+                                    decoded_data = base64.b64decode(data)
+                                    # Now, the data obtained is in lxml. So, we will parse  
+                                    # it with BeautifulSoup library 
+                                    soup = BeautifulSoup(decoded_data , "lxml") 
+                                    body = soup.get_text() 
+                                    break
+                            # Handle  multipart emails with 'text/plain'
+                            elif part['mimeType'] == 'text/plain':
+                                data = part['body'].get('data')
+                                if data:
+                                    data = data.replace("-","+").replace("_","/") 
+                                    decoded_data = base64.b64decode(data)
+                                    body = decoded_data.decode('utf-8')
+                                    break
+                # Handle single part emails
+                else:
+                    data = payload['body'].get('data')
+                    if data:
+                        data = data.replace("-","+").replace("_","/") 
+                        decoded_data = base64.b64decode(data)
+                        body = decoded_data.decode('utf-8')
+    
+                # Printing the subject, sender's email and message 
+                logging.info(f"Subject: {subject}") 
+                logging.info(f"From: {sender}") 
+                logging.info(f"Message: {body}")
+                logging.info('\n') 
         except: 
             pass
   
