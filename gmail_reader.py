@@ -3,11 +3,13 @@
 from googleapiclient.discovery import build 
 from google_auth_oauthlib.flow import InstalledAppFlow 
 from google.auth.transport.requests import Request 
+import extract_trans
 import pickle 
 import os.path 
 import base64 
 import email 
 import logging
+import re
 from bs4 import BeautifulSoup 
   
 # Define the SCOPES. If modifying it, delete the token.pickle file. 
@@ -35,14 +37,6 @@ def extract_receipt_food_basic(html_content):
         return "\n".join(lines)
     else:
         return "RECEIPT BLOCK NOT FOUND"
-
-
-def extract_receipt_steam(html_content):
-    soup = BeautifulSoup(html_content, "html.parser")
-    
-    return soup
-
-
 
 def getEmails(): 
     # Variable creds will store the user access token. 
@@ -112,55 +106,46 @@ def getEmails():
             # Only look at emails from certain senders
             if sender in wanted_senders:
                 print(sender)
-                # Deal with different payload structures
-                # Handle multipart emails
-                if 'parts' in payload:
-                    parts = payload['parts']
-                    for part in parts:
-                        print(f"Part MIMETYPE: {part['mimeType']}")  # for debugging
-                        # Handle 'multipart/alternative' case
-                        if part['mimeType'] == 'multipart/alternative':
-                            # print("MULTIPART/ALTERNATIVE TYPE")  
-                            for subpart in part['parts']:
-                                if subpart['mimeType'] == 'text/html':
-                                    print("MimeType = multipart/alternative, subpart MimeType = text/html")  
-                                    # Do nothing for now
-
-                                # CASE Steam
-                                elif subpart['mimeType'] == 'text/plain':
-                                    print("Steam receipt")  
-                                    data = subpart['body'].get('data')
-                                    if data:
-                                        data = data.replace("-","+").replace("_","/") 
-                                        decoded_data = base64.b64decode(data)
-                                        body = decoded_data.decode('utf-8')
-                                        break
-
-                        # Handle 'text/html' case
-                        elif part['mimeType'] == 'text/html':
-                            print("MimeType = text/html")
-                            # Do nothing for now
-
-                        # Handle 'text/plain' case
-                        elif part['mimeType'] == 'text/plain':
-                            print("MimeType = text/plain")
-                            # Do nothing for now
-
-                # Handle single part emails
-                # CASE: Food Basic Receipt 
-                else:
+                # CASE: buy items from market
+                # Gonna change this later because of different format from case 2 below
+                if sender == "Steam Store <noreply@steampowered.com>":
+                    for part in payload['parts']:
+                        for subpart in part['parts']:
+                            data = subpart['body'].get('data')
+                            if data:
+                                data = data.replace("-","+").replace("_","/") 
+                                decoded_data = base64.b64decode(data)
+                                body = decoded_data.decode('utf-8')
+                                extract_trans.get_steam_store_obj(body)  # This line is IMPORTANT
+                                break   
+                # CASE: Buy games and Subscriptions
+                # Gonna change this later because of different format from case 1 above
+                elif sender == "Steam Support <noreply@steampowered.com>" and ("Thank you" in subject or "subscription" in subject):
+                    for part in payload['parts']:
+                        for subpart in part['parts']:
+                            data = subpart['body'].get('data')
+                            if data:
+                                data = data.replace("-","+").replace("_","/") 
+                                decoded_data = base64.b64decode(data)
+                                body = decoded_data.decode('utf-8')
+                                url = re.search(r"https://store\.steampowered\.com/email/PurchaseReceipt\S+", body).group(0)[:-1]
+                                extract_trans.get_steam_supp_obj(url)  # This line is IMPORTANT
+                                break      
+                # CASE: Food Basics Groceries
+                elif sender == 'Food Basics Receipts <transaction@transaction.foodbasics.ca>':
                     # print("Food Basic Receipt")  
                     data = payload['body'].get('data')
                     if data:
                         data = data.replace("-","+").replace("_","/") 
                         decoded_data = base64.b64decode(data)
-                        body = extract_receipt_food_basic(decoded_data.decode('utf-8', errors='ignore'))                  
+                        body = extract_receipt_food_basic(decoded_data.decode('utf-8', errors='ignore')) 
+                        extract_trans.get_foodbasics_obj(body)                 
     
                 # Printing the subject, sender's email and message 
-                logging.info(f"Subject: {subject}") 
-                logging.info(f"From: {sender}") 
-                logging.info(f"Message: {body}")
-                logging.info('\n') 
+                #logging.info(f"Subject: {subject}") 
+                #logging.info(f"From: {sender}") 
+                #logging.info(f"Message: {body}")
+                #logging.info('\n') 
         except: 
             pass
   
