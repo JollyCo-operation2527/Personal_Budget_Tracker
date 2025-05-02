@@ -2,6 +2,26 @@ import requests, re
 from bs4 import BeautifulSoup
 from datetime import datetime
 
+def extract_receipt_food_basic(html_content):
+    soup = BeautifulSoup(html_content, "html.parser")
+
+    # Find the td with the style and class that match the receipt block
+    receipt_td = None
+    for td in soup.find_all("td"):
+        if "Store #100" in td.get_text():
+            receipt_td = td
+            break
+
+    if receipt_td:
+        # Get all text and clean it up
+        text = receipt_td.get_text(separator="\n", strip=True)
+
+        # Optional: remove leading/trailing junk lines or excessive empty lines
+        lines = [line.strip() for line in text.splitlines() if line.strip()]
+        return "\n".join(lines)
+    else:
+        return "RECEIPT BLOCK NOT FOUND"
+
 def get_steam_supp_obj(url):
     # Step 1: Send GET request to the URL
     response = requests.get(url)
@@ -68,3 +88,23 @@ def get_foodbasics_obj(body):
     # Output
     print(total)
     print(date_formatted)
+
+def get_domino_obj(html):
+    # Search for "Total: $<number>" in a <strong> tag
+    match = re.search(r"<strong>\s*Total:\s*\$([\d.]+)\s*</strong>", html)
+    if match:
+        total = match.group(1)
+        print(total)
+    
+    # Use regex to find the date following the "Date:" label
+    match = re.search(r"<strong>\s*Date:\s*</strong>\s*(\d{2}/\d{2}/\d{4})", html)
+    if match:
+        raw_date = match.group(1) 
+        # Convert to datetime object
+        dt = datetime.strptime(raw_date, "%m/%d/%Y")
+        # Format as dd MM, YYYY
+        formatted_date = dt.strftime("%d %b, %Y")
+        print(formatted_date)
+   
+    
+

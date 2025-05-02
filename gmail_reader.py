@@ -18,26 +18,6 @@ SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
 # Set up basic logging
 logging.basicConfig(filename = 'app.log', level=logging.INFO)  
 
-def extract_receipt_food_basic(html_content):
-    soup = BeautifulSoup(html_content, "html.parser")
-
-    # Find the td with the style and class that match the receipt block
-    receipt_td = None
-    for td in soup.find_all("td"):
-        if "Store #100" in td.get_text():
-            receipt_td = td
-            break
-
-    if receipt_td:
-        # Get all text and clean it up
-        text = receipt_td.get_text(separator="\n", strip=True)
-
-        # Optional: remove leading/trailing junk lines or excessive empty lines
-        lines = [line.strip() for line in text.splitlines() if line.strip()]
-        return "\n".join(lines)
-    else:
-        return "RECEIPT BLOCK NOT FOUND"
-
 def getEmails(): 
     # Variable creds will store the user access token. 
     # If no valid token found, we will create one. 
@@ -81,7 +61,9 @@ def getEmails():
     # List of wanted senders (Only look at emails from these senders)
     wanted_senders = ['Steam Store <noreply@steampowered.com>',
     'Steam Support <noreply@steampowered.com>',
-    'Food Basics Receipts <transaction@transaction.foodbasics.ca>']
+    'Food Basics Receipts <transaction@transaction.foodbasics.ca>',
+    'orders@dominos.ca']
+    
 
     # messages is a list of dictionaries where each dictionary contains a message id. 
   
@@ -107,7 +89,6 @@ def getEmails():
             if sender in wanted_senders:
                 print(sender)
                 # CASE: buy items from market
-                # Gonna change this later because of different format from case 2 below
                 if sender == "Steam Store <noreply@steampowered.com>":
                     for part in payload['parts']:
                         for subpart in part['parts']:
@@ -118,8 +99,7 @@ def getEmails():
                                 body = decoded_data.decode('utf-8')
                                 extract_trans.get_steam_store_obj(body)  # This line is IMPORTANT
                                 break   
-                # CASE: Buy games and Subscriptions
-                # Gonna change this later because of different format from case 1 above
+                # CASE: Buy games and Subscriptions                
                 elif sender == "Steam Support <noreply@steampowered.com>" and ("Thank you" in subject or "subscription" in subject):
                     for part in payload['parts']:
                         for subpart in part['parts']:
@@ -138,14 +118,22 @@ def getEmails():
                     if data:
                         data = data.replace("-","+").replace("_","/") 
                         decoded_data = base64.b64decode(data)
-                        body = extract_receipt_food_basic(decoded_data.decode('utf-8', errors='ignore')) 
-                        extract_trans.get_foodbasics_obj(body)                 
+                        body = extract_trans.extract_receipt_food_basic(decoded_data.decode('utf-8', errors='ignore')) 
+                        extract_trans.get_foodbasics_obj(body)           
+                # CASE: Domino's Pizza
+                elif sender == 'orders@dominos.ca' and "Your Domino's Pizza Order" in subject:
+                    data = payload['body'].get('data')
+                    if data:
+                        data = data.replace("-","+").replace("_","/") 
+                        decoded_data = base64.b64decode(data)
+                        body = decoded_data.decode('utf-8', errors='ignore')
+                        extract_trans.get_domino_obj(body)
     
                 # Printing the subject, sender's email and message 
-                #logging.info(f"Subject: {subject}") 
-                #logging.info(f"From: {sender}") 
-                #logging.info(f"Message: {body}")
-                #logging.info('\n') 
+                """logging.info(f"Subject: {subject}") 
+                logging.info(f"From: {sender}") 
+                logging.info(f"Message: {body}")
+                logging.info('\n') """
         except: 
             pass
   
