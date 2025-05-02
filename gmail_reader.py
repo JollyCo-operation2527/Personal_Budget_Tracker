@@ -37,6 +37,13 @@ def extract_receipt_food_basic(html_content):
         return "RECEIPT BLOCK NOT FOUND"
 
 
+def extract_receipt_steam(html_content):
+    soup = BeautifulSoup(html_content, "html.parser")
+    
+    return soup
+
+
+
 def getEmails(): 
     # Variable creds will store the user access token. 
     # If no valid token found, we will create one. 
@@ -69,7 +76,7 @@ def getEmails():
     result = service.users().messages().list(userId='me').execute() 
   
     # We can also pass maxResults to get any number of emails. Like this: 
-    result = service.users().messages().list(maxResults=50, userId='me').execute() 
+    result = service.users().messages().list(maxResults=200, userId='me').execute() 
     messages = result.get('messages') 
 
     if not messages:
@@ -78,7 +85,8 @@ def getEmails():
         print(f"{len(messages)} emails fetched")
   
     # List of wanted senders (Only look at emails from these senders)
-    wanted_senders = ['Steam <noreply@steampowered.com>',
+    wanted_senders = ['Steam Store <noreply@steampowered.com>',
+    'Steam Support <noreply@steampowered.com>',
     'Food Basics Receipts <transaction@transaction.foodbasics.ca>']
 
     # messages is a list of dictionaries where each dictionary contains a message id. 
@@ -103,13 +111,13 @@ def getEmails():
             
             # Only look at emails from certain senders
             if sender in wanted_senders:
-                # print(sender)
+                print(sender)
                 # Deal with different payload structures
                 # Handle multipart emails
                 if 'parts' in payload:
                     parts = payload['parts']
                     for part in parts:
-                        # print(f"Part MIMETYPE: {part['mimeType']}")  # for debugging
+                        print(f"Part MIMETYPE: {part['mimeType']}")  # for debugging
                         # Handle 'multipart/alternative' case
                         if part['mimeType'] == 'multipart/alternative':
                             # print("MULTIPART/ALTERNATIVE TYPE")  
@@ -120,7 +128,7 @@ def getEmails():
 
                                 # CASE Steam
                                 elif subpart['mimeType'] == 'text/plain':
-                                    # print("Steam receipt")  
+                                    print("Steam receipt")  
                                     data = subpart['body'].get('data')
                                     if data:
                                         data = data.replace("-","+").replace("_","/") 
