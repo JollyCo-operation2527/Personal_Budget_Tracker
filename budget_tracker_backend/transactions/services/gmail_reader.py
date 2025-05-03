@@ -78,7 +78,6 @@ def getEmails():
     'Food Basics Receipts <transaction@transaction.foodbasics.ca>',
     'orders@dominos.ca']
     
-
     # messages is a list of dictionaries where each dictionary contains a message id. 
   
     # iterate through all the messages 
@@ -111,8 +110,10 @@ def getEmails():
                                 data = data.replace("-","+").replace("_","/") 
                                 decoded_data = base64.b64decode(data)
                                 body = decoded_data.decode('utf-8')
-                                extract_trans.get_steam_store_obj(body)  # This line is IMPORTANT
+                                new_trans = extract_trans.get_steam_store_obj(body)  # This line is IMPORTANT
+                                new_trans.save()
                                 break   
+
                 # CASE: Buy games and Subscriptions                
                 elif sender == "Steam Support <noreply@steampowered.com>" and ("Thank you" in subject or "subscription" in subject):
                     for part in payload['parts']:
@@ -123,8 +124,10 @@ def getEmails():
                                 decoded_data = base64.b64decode(data)
                                 body = decoded_data.decode('utf-8')
                                 url = re.search(r"https://store\.steampowered\.com/email/PurchaseReceipt\S+", body).group(0)[:-1]
-                                extract_trans.get_steam_supp_obj(url)  # This line is IMPORTANT
+                                new_trans = extract_trans.get_steam_supp_obj(url)  # This line is IMPORTANT
+                                new_trans.save()
                                 break      
+
                 # CASE: Food Basics Groceries
                 elif sender == 'Food Basics Receipts <transaction@transaction.foodbasics.ca>':
                     # print("Food Basic Receipt")  
@@ -133,7 +136,9 @@ def getEmails():
                         data = data.replace("-","+").replace("_","/") 
                         decoded_data = base64.b64decode(data)
                         body = extract_trans.extract_receipt_food_basic(decoded_data.decode('utf-8', errors='ignore')) 
-                        extract_trans.get_foodbasics_obj(body)           
+                        new_trans = extract_trans.get_foodbasics_obj(body)   # This line is IMPORTANT
+                        new_trans.save()
+
                 # CASE: Domino's Pizza
                 elif sender == 'orders@dominos.ca' and "Your Domino's Pizza Order" in subject:
                     data = payload['body'].get('data')
@@ -141,7 +146,8 @@ def getEmails():
                         data = data.replace("-","+").replace("_","/") 
                         decoded_data = base64.b64decode(data)
                         body = decoded_data.decode('utf-8', errors='ignore')
-                        extract_trans.get_domino_obj(body)
+                        new_trans = extract_trans.get_domino_obj(body)  # This line is IMPORTANT
+                        new_trans.save()
     
                 # Printing the subject, sender's email and message 
                 """logging.info(f"Subject: {subject}") 

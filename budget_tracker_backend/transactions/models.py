@@ -4,7 +4,7 @@ class Transaction(models.Model):
     store_name = models.CharField(max_length=30)
     total_amount = models.FloatField()
     date = models.DateField()
-    category = models.CharField(max_length=15)
+    category = models.CharField(max_length=30)
 
     class Meta:
         constraints = [

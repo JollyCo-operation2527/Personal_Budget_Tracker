@@ -38,8 +38,8 @@ def get_steam_supp_obj(url):
             tr = total_label_td.find_parent('tr')
             if tr:
                 tds = tr.find_all('td') 
-                total_amount = tds[-1].get_text(strip=True).replace('CDN$', '').strip()
-                print(total_amount)
+                total= tds[-1].get_text(strip=True).replace('CDN$', '').strip()
+                #print(total)
 
         # Get the date
         date_label_td = soup.find('td', string=lambda s: s and s.strip() == "Date issued:")
@@ -50,10 +50,16 @@ def get_steam_supp_obj(url):
                 strong_tag = tds[-1].find('strong')
                 if strong_tag:
                     date_text = strong_tag.get_text(strip=True).split('@')[0].strip()
-                    print(date_text)
+                    #print(date_text)
 
-        
-        
+        # Output
+        return Transaction(
+            store_name = "Steam",
+            total_amount = float(total),
+            date = datetime.strptime(date_text, "%d %b, %Y").date(),
+            category = "Entertainment"
+        )
+
     else:
         print(f'Failed to fetch page. Status code: {response.status_code}')
 
@@ -61,17 +67,25 @@ def get_steam_store_obj(body):
     # Extract total — the line starting with "Total:" followed by a number
     total_match = re.search(r"Total:\s*\n\s*([\d.]+)\s*CAD", body)
     total = total_match.group(1) if total_match else None
-    print(total)
+    #print(total)
 
     # Extract date — the line after "Date Confirmed"
     date_match = re.search(r"Date Confirmed\s*\n\s*\w+\s+(\w+)\s+(\d+)\s+[\d:]+\s+(\d{4})", body)
     if date_match:
         month, day, year = date_match.groups()
-        date_formatted = f"{day} {month}, {year}"
+        date_text = f"{day} {month}, {year}"
     else:
-        date_formatted = None
+        date_text = None
 
-    print(date_formatted)
+    #print(date_text)
+
+    # Output
+    return Transaction(
+        store_name = "Steam",
+        total_amount = float(total),
+        date = datetime.strptime(date_text, "%d %b, %Y").date(),
+        category = "Entertainment"
+    )
 
 def get_foodbasics_obj(body):
     # Extract TOTAL line
@@ -84,20 +98,24 @@ def get_foodbasics_obj(body):
         yy, mm, dd = date_match.groups()
         # Assume year 20yy
         full_date = datetime.strptime(f'20{yy}-{mm}-{dd}', "%Y-%m-%d")
-        date_formatted = full_date.strftime("%d %b, %Y")  
+        date_text = full_date.strftime("%d %b, %Y")  
     else:
-        date_formatted = None
+        date_text = None
 
     # Output
-    print(total)
-    print(date_formatted)
+    return Transaction(
+        store_name = "Food Basics",
+        total_amount = float(total),
+        date = datetime.strptime(date_text, "%d %b, %Y").date(),
+        category = "Groceries"
+    )
 
 def get_domino_obj(html):
     # Search for "Total: $<number>" in a <strong> tag
     match = re.search(r"<strong>\s*Total:\s*\$([\d.]+)\s*</strong>", html)
     if match:
         total = match.group(1)
-        print(total)
+        #print(total)
     
     # Use regex to find the date following the "Date:" label
     match = re.search(r"<strong>\s*Date:\s*</strong>\s*(\d{2}/\d{2}/\d{4})", html)
@@ -106,8 +124,16 @@ def get_domino_obj(html):
         # Convert to datetime object
         dt = datetime.strptime(raw_date, "%m/%d/%Y")
         # Format as dd MM, YYYY
-        formatted_date = dt.strftime("%d %b, %Y")
-        print(formatted_date)
+        date_text = dt.strftime("%d %b, %Y")
+        #print(date_text)
+    
+    # Output
+    return Transaction(
+        store_name = "Domino's Pizza",
+        total_amount = float(total),
+        date = datetime.strptime(date_text, "%d %b, %Y").date(),
+        category = "Takeout/Restaurants"
+    )
    
     
 
