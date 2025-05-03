@@ -6,8 +6,15 @@ class Transaction(models.Model):
     date = models.DateField()
     category = models.CharField(max_length=15)
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['store_name', 'total_amount', 'date', 'category'],
+                name='no_duplicate')
+        ]
+
     def __str__(self):
-        return f"{self.store_name} - ${self.total_amount} on {self.date}"
+        return f"{self.store_name} - ${self.total_amount} on {self.date} ({self.category})"
 
 class Item(models.Model):
     transaction = models.ForeignKey(Transaction, related_name='items', on_delete=models.CASCADE)
