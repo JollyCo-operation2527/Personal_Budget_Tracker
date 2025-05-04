@@ -28,5 +28,6 @@ def recur_payments_obj():
             category = "Phone/Internet"
         )
         new_phone_bill.save()
+        
         # Increment month by 1
         start += relativedelta(months=1)
