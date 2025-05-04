@@ -8,17 +8,36 @@ function App() {
   const [month, setMonth] = useState(String(today.getMonth() + 1).padStart(2, '0'));
   const [year, setYear] = useState(String(today.getFullYear()));
 
-  return (
-    <div>
-      <h2>Monthly Spending Breakdown</h2>
-      <MonthYearSelector
-        month={month}
-        year={year}
-        onMonthChange={setMonth}
-        onYearChange={setYear}
+  if (today.getMonth() + 1 < month){
+    return (
+      <div class="selector">
+        <MonthYearSelector
+          month={month}
+          year={year}
+          onMonthChange={setMonth}
+          onYearChange={setYear}
       />
-      <CategoryPieChart month={month} year={year} />
-    </div>
+        <h2>No information available</h2>
+      </div>
+    )
+  }
+
+  return (
+    <>
+      <div class="selector">
+        <MonthYearSelector
+          month={month}
+          year={year}
+          onMonthChange={setMonth}
+          onYearChange={setYear}
+        />
+        <h2>Monthly Spending Breakdown</h2>
+      </div>
+
+      <div class="piechart">
+        <CategoryPieChart month={month} year={year} />
+      </div>
+    </>
   );
 }
 

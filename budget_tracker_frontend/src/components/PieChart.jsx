@@ -25,24 +25,33 @@ function CategoryPieChart({ month, year }) {
   }, [month, year]);
 
   return (
-    <div>
-      <h3>Spending in {month}/{year}</h3>
-      <PieChart width={400} height={300}>
-        <Pie
-          data={data}
-          dataKey="value"
-          nameKey="name"
-          outerRadius={120}
-          label
-        >
-          {data.map((_, index) => (
-            <Cell key={index} fill={COLORS[index % COLORS.length]} />
-          ))}
-        </Pie>
-        <Tooltip />
-        <Legend />
-      </PieChart>
-    </div>
+    <>
+        <div>
+        <h3>Spending in {month}/{year}</h3>
+        <PieChart width={500} height={300}>
+            <Pie
+            data={data}
+            dataKey="value"
+            nameKey="name"
+            outerRadius={120}
+            label={({value}) => `$${value}`}
+            >
+            {data.map((_, index) => (
+                <Cell key={index} fill={COLORS[index % COLORS.length]} />
+            ))}
+            </Pie>
+            <Tooltip />
+        </PieChart>
+        </div>
+        
+        {/* Legend */}
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', marginTop: '10px'}}>
+            {data.map((entry, index) => (
+                <div key={index} style={{ color: COLORS[index % COLORS.length] }}>
+                    {entry.name}
+                </div> ))}
+        </div>
+    </>
   );
 }
 

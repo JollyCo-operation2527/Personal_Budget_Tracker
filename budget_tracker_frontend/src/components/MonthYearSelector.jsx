@@ -27,9 +27,9 @@ function MonthYearSelector({month, year, onMonthChange, onYearChange}){
                         <option key={m.value} value={m.value}>{m.label}</option>
                     ))}
                 </select>
-            </label>
-
-            <label>
+            </label>    
+            
+            <label> {" "}
                 Year:
                 <select value={year} onChange={e => onYearChange(e.target.value)}>
                     {years.map(y => (
