@@ -17,19 +17,19 @@ def extract_receipt_food_basic(html_content):
         # Get all text and clean it up
         text = receipt_td.get_text(separator="\n", strip=True)
 
-        # Optional: remove leading/trailing junk lines or excessive empty lines
+        # Remove leading/trailing junk lines or excessive empty lines
         lines = [line.strip() for line in text.splitlines() if line.strip()]
         return "\n".join(lines)
     else:
         return "RECEIPT BLOCK NOT FOUND"
 
 def get_steam_supp_obj(url):
-    # Step 1: Send GET request to the URL
+    # Send GET request to the URL
     response = requests.get(url)
 
-    # Step 2: Check response status
+    # Check response status
     if response.status_code == 200:
-        # Step 3: Parse the HTML content
+        # Parse the HTML content
         soup = BeautifulSoup(response.text, 'html.parser')
 
         # Get the total amount

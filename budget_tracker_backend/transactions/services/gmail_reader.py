@@ -12,7 +12,7 @@ django.setup()
 from googleapiclient.discovery import build 
 from google_auth_oauthlib.flow import InstalledAppFlow 
 from google.auth.transport.requests import Request 
-from transactions.services import extract_trans
+from transactions.services import extract_trans, recurring_payments
 import pickle 
 import os.path 
 import base64 
@@ -153,7 +153,7 @@ def getEmails():
                         new_trans = extract_trans.get_domino_obj(body)  # This line is IMPORTANT
                         new_trans.save()
     
-                # Printing the subject, sender's email and message 
+                # Printing the subject, sender's email and message (for debugging)
                 """logging.info(f"Subject: {subject}") 
                 logging.info(f"From: {sender}") 
                 logging.info(f"Message: {body}")
@@ -163,4 +163,5 @@ def getEmails():
   
   
 getEmails()
+recurring_payments.recur_payments_obj()
 
