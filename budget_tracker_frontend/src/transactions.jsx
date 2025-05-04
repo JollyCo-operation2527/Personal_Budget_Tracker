@@ -1,28 +1,24 @@
-// This is to test
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
+import CategoryPieChart from './components/PieChart';
+import MonthYearSelector from './components/MonthYearSelector';
 
-function Transactions() {
-  const [transactions, setTransactions] = useState([]);
-
-  useEffect(() => {
-    fetch('http://127.0.0.1:8000/api/transactions/')
-      .then(response => response.json())
-      .then(data => setTransactions(data))
-      .catch(error => console.error('Error fetching data:', error));
-  }, []);
+function MonthlySpending() {
+  const today = new Date();
+  const [month, setMonth] = useState(String(today.getMonth() + 1).padStart(2, '0'));
+  const [year, setYear] = useState(String(today.getFullYear()));
 
   return (
     <div>
-      <h2>Transactions</h2>
-      <ul>
-        {transactions.map(tx => (
-          <li key={tx.id}>
-            <strong>{tx.store}</strong>: ${tx.amount} on {tx.date}
-          </li>
-        ))}
-      </ul>
+      <h2>Monthly Spending Breakdown</h2>
+      <MonthYearSelector
+        month={month}
+        year={year}
+        onMonthChange={setMonth}
+        onYearChange={setYear}
+      />
+      <CategoryPieChart month={month} year={year} />
     </div>
   );
 }
 
-export default Transactions;
+export default MonthlySpending;
