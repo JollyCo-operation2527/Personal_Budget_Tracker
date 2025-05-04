@@ -1,7 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { PieChart, Pie, Tooltip, Cell, Legend } from 'recharts';
 
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#A28EFF'];
+const CATEGORY_COLOURS = {
+    'Rent': '#F7545A',
+    'Entertainment': '#4A84F7',
+    'Groceries': '#5CF770',
+    'Takeout/Restaurants': '#FAE05C',
+    'Phone/Internet': '#A28EFF',
+    'Default': '#CCCCCC',
+  };
 
 function CategoryPieChart({ month, year }) {
   const [data, setData] = useState([]);
@@ -28,7 +35,7 @@ function CategoryPieChart({ month, year }) {
     <>
         <div>
         <h3>Spending in {month}/{year}</h3>
-        <PieChart width={500} height={300}>
+        <PieChart width={500} height={350}>
             <Pie
             data={data}
             dataKey="value"
@@ -36,8 +43,8 @@ function CategoryPieChart({ month, year }) {
             outerRadius={120}
             label={({value}) => `$${value}`}
             >
-            {data.map((_, index) => (
-                <Cell key={index} fill={COLORS[index % COLORS.length]} />
+            {data.map((entry, index) => (
+                <Cell key={index} fill={CATEGORY_COLOURS[entry.name] || CATEGORY_COLOURS['Default']} />
             ))}
             </Pie>
             <Tooltip />
@@ -47,7 +54,7 @@ function CategoryPieChart({ month, year }) {
         {/* Legend */}
         <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', marginTop: '10px'}}>
             {data.map((entry, index) => (
-                <div key={index} style={{ color: COLORS[index % COLORS.length] }}>
+                <div key={index} style={{ color: CATEGORY_COLOURS[entry.name] || CATEGORY_COLOURS['Default']}}>
                     {entry.name}
                 </div> ))}
         </div>
