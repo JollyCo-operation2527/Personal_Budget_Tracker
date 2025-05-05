@@ -61,15 +61,15 @@ def getEmails():
     service = build('gmail', 'v1', credentials=creds) 
   
     # Pass maxResults to get any number of emails (maximum is 500 due to Google API limit)
-    result = service.users().messages().list(maxResults=50, userId='me').execute() 
+    result = service.users().messages().list(maxResults=500, userId='me').execute() 
     messages = result.get('messages', []) 
 
     # Use this block if there are more emails to fetch
-    """while 'nextPageToken' in result:
+    while 'nextPageToken' in result:
         page_token = result['nextPageToken']
         result = service.users().messages().list(maxResults=300, userId='me', pageToken=page_token).execute()
         messages.extend(result.get('messages', []))
-        break"""
+        break
 
     if not messages:
         print("No email found.")

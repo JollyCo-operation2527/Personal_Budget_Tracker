@@ -1,10 +1,6 @@
-# Python
-__pycache__/
-*.py[cod]
-*.sqlite3
-
-# Virtual Environment
 virtual_env/
+budget_tracker_frontend/node_modules/
+.git/
 
 # Django
 *.log

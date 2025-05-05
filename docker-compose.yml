@@ -1,0 +1,22 @@
+version: '3'
+services:
+  frontend:
+    build: ./budget_tracker_frontend
+    ports:
+      - "5000:5000"
+    depends_on:
+      - backend
+
+  backend:
+    build: ./budget_tracker_backend
+    ports:
+      - "8000:8000"
+    environment:
+      - DB_HOST='localhost'
+      - DB_NAME=''
+      - DB_USER=''
+      - DB_PASSWORD=
+    depends_on:
+      - db
+
+
