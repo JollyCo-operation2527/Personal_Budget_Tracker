@@ -12,22 +12,20 @@ def recur_payments_obj():
 
     while start.month <= today.month:
         # I pay 600 every first day of the month (Rent)
-        new_month_rent = Transaction(
+        Transaction.objects.get_or_create(
             store_name = "Rent",
             total_amount = 600,
             date = start,
             category = "Rent"
         )
-        new_month_rent.save()
 
         # I pay 45.20 every fifth day of the month (Phone bill)
-        new_phone_bill = Transaction(
+        Transaction.objects.get_or_create(
             store_name = "Chatr Mobile",
             total_amount = 45.20,
             date = start + relativedelta(days=4),
             category = "Phone/Internet"
         )
-        new_phone_bill.save()
         
         # Increment month by 1
         start += relativedelta(months=1)
