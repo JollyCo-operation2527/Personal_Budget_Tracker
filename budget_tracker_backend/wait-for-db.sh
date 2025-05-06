@@ -12,4 +12,8 @@ echo "PostGreSQL is ready"
 
 shift # remove "db:5432" from the argument list
 
+echo "Running migrate"
+python manage.py migrate
+
 exec "$@"
+
