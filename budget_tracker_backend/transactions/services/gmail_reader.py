@@ -32,6 +32,9 @@ logging.basicConfig(filename = 'app.log', level=logging.INFO)
 TOKEN_PATH = os.path.join(os.path.dirname(__file__), '..', '..', 'secret', 'token.pickle')
 TOKEN_PATH = os.path.abspath(TOKEN_PATH)
 
+def is_docker():
+    return os.path.exists('/.dockerenv')
+
 def getEmails(): 
     # Variable creds will store the user access token. 
     # If no valid token found, we will create one. 
@@ -50,8 +53,12 @@ def getEmails():
         if creds and creds.expired and creds.refresh_token: 
             creds.refresh(Request()) 
         else: 
-            flow = InstalledAppFlow.from_client_secrets_file('secret/credentials.json', SCOPES) 
-            creds = flow.run_local_server(port=8080) 
+            if is_docker():
+                print("Token not valid or missing. Generate one outside of Docker.")
+                return
+            else:
+                flow = InstalledAppFlow.from_client_secrets_file('secret/credentials.json', SCOPES) 
+                creds = flow.run_local_server(port=8080) 
   
         # Save the access token in token.pickle file for the next run 
         with open(TOKEN_PATH, 'wb') as token: 
