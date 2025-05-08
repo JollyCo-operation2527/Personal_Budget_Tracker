@@ -58,7 +58,7 @@ jobs:
 
     - name: Wait for the database to be ready
       working-directory: ./budget_tracker_backend
-      run: wait-for-db.sh
+      run: ./wait-for-db.sh
         
     - name: Run Tests
       working-directory: ./budget_tracker_backend
