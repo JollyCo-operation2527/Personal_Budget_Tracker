@@ -27,9 +27,6 @@ jobs:
           POSTGRES_PASSWORD: ${{secrets.DB_PASSWORD}}
 
     env:
-      DB_NAME: ${{ secrets.DB_NAME }}
-      DB_USER: ${{ secrets.DB_USER }}
-      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
       DB_HOST: localhost
       DB_PORT: 5432
       SECRET_KEY: ${{ secrets.SECRET_KEY }}
@@ -55,6 +52,10 @@ jobs:
         echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> ./budget_tracker_backend/budget_tracker_backend/.env
         echo "DB_HOST=localhost" >> ./budget_tracker_backend/budget_tracker_backend/.env
         echo "DB_PORT=5432" >> ./budget_tracker_backend/budget_tracker_backend/.env
+      env:
+        DB_NAME: ${{ secrets.DB_NAME }}
+        DB_USER: ${{ secrets.DB_USER }}
+        DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
 
     - name: Wait for the database to be ready
       working-directory: ./budget_tracker_backend
