@@ -66,4 +66,4 @@ jobs:
       working-directory: ./budget_tracker_backend
       run: |
         python manage.py migrate
-        python manage.py pytest
+        pytest
