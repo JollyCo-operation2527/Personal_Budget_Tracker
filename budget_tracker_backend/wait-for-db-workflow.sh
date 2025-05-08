@@ -5,7 +5,7 @@ PORT=${2:-5432}
 
 echo "Waiting for postgres at $HOST:$PORT"
 
-while ! nc -z "$HOST" at "$PORT"; do
+while ! nc -z "$HOST" "$PORT"; do
     sleep 2
 done
 
