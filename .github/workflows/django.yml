@@ -57,12 +57,9 @@ jobs:
         echo "DB_PORT=5432" >> ./budget_tracker_backend/budget_tracker_backend/.env
 
     - name: Wait for the database to be ready
-      run: |
-        until pg_isready -h localhost -p 5432 -U ${{ secrets.DB_USER }}; do
-          echo "waiting for PostGres to be ready"
-          sleep 1
-        done
-
+      working-directory: ./budget_tracker_backend
+      run: wait-for-db.sh
+        
     - name: Run Tests
       working-directory: ./budget_tracker_backend
       run: |
