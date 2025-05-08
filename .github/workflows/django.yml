@@ -52,7 +52,7 @@ jobs:
       run: |
         echo "DB_NAME=${{ secrets.DB_NAME }}" >> ./budget_tracker_backend/budget_tracker_backend/.env
         echo "DB_USER=${{ secrets.DB_USER }}" >> ./budget_tracker_backend/budget_tracker_backend/.env
-        echo "DB_PASSWORD=${{s ecrets.DB_PASSWORD }}" >> ./budget_tracker_backend/budget_tracker_backend/.env
+        echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> ./budget_tracker_backend/budget_tracker_backend/.env
         echo "DB_HOST=localhost" >> ./budget_tracker_backend/budget_tracker_backend/.env
         echo "DB_PORT=5432" >> ./budget_tracker_backend/budget_tracker_backend/.env
 
