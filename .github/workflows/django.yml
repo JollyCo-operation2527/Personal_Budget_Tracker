@@ -17,7 +17,7 @@ jobs:
       matrix:
         python-version: [3.12.3]
     services:
-      postgres: 
+      db: 
         image: postgres:17
         ports: 
           - 5432:5432
@@ -30,7 +30,7 @@ jobs:
       DB_NAME: ${{ secrets.DB_NAME }}
       DB_USER: ${{ secrets.DB_USER }}
       DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-      DB_HOST: localhost
+      DB_HOST: db
       DB_PORT: 5432
       SECRET_KEY: ${{ secrets.SECRET_KEY }}
 
@@ -60,7 +60,7 @@ jobs:
       working-directory: ./budget_tracker_backend
       run: |
         chmod +x ./wait-for-db-workflow.sh
-        ./wait-for-db-workflow.sh localhost 5432
+        ./wait-for-db-workflow.sh db 5432
         
     - name: Run Tests
       working-directory: ./budget_tracker_backend

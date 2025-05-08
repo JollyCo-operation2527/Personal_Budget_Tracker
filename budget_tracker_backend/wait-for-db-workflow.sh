@@ -1,6 +1,6 @@
 #!/bin/bash
 
-HOST=${1:-localhost}
+HOST=${1:-db}
 PORT=${2:-5432}
 
 echo "Waiting for postgres at $HOST:$PORT"
