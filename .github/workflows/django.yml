@@ -56,13 +56,11 @@ jobs:
         echo "DB_HOST=localhost" >> ./budget_tracker_backend/budget_tracker_backend/.env
         echo "DB_PORT=5432" >> ./budget_tracker_backend/budget_tracker_backend/.env
 
-    - name: Make wait-for-db-workflow.sh executable
-      working-directory: ./budget_tracker_backend
-      run: chmod +x ./wait-for-db-workflow.sh
-
     - name: Wait for the database to be ready
       working-directory: ./budget_tracker_backend
-      run: ./wait-for-db-workflow.sh
+      run: |
+        chmod +x ./wait-for-db-workflow.sh
+        ./wait-for-db-workflow.sh localhost 5432
         
     - name: Run Tests
       working-directory: ./budget_tracker_backend

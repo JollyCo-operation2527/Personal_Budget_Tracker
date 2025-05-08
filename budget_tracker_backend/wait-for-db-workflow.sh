@@ -1,7 +1,7 @@
 #!/bin/bash
 
-HOST={$1:-localhost}
-PORT={$2:-5432}
+HOST=${1:-localhost}
+PORT=${2:-5432}
 
 echo "Waiting for postgres at $HOST:$PORT"
 
