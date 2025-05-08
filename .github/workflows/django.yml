@@ -1,4 +1,4 @@
-name: Django CI
+name: Personal Budget Tracker
 
 on:
   push:
