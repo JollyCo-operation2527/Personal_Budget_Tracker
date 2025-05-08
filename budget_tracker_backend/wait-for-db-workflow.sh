@@ -1,19 +1,13 @@
 #!/bin/bash
 
-HOST_PORT="$1"
+HOST={$1:-localhost}
+PORT={$2:-5432}
 
-echo "Waiting for postgres at localhost:5432"
+echo "Waiting for postgres at $HOST:$PORT"
 
-while ! nc -z localhost 5432; do
-    sleep 1
+while ! nc -z "$HOST" at "$PORT"; do
+    sleep 2
 done
 
 echo "PostGreSQL is ready"
-
-shift # remove "db:5432" from the argument list
-
-echo "Running migrate"
-python manage.py migrate
-
-exec "$@"
 
