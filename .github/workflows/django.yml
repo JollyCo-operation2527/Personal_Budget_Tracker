@@ -29,5 +29,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
     - name: Run Tests
+      working-directory: ./budget_tracker_backend
       run: |
+        python manage.py migrate
         python manage.py test
