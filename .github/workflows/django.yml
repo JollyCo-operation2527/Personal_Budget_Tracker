@@ -26,23 +26,27 @@ jobs:
           POSTGRES_USER: ${{secrets.DB_USER}}
           POSTGRES_PASSWORD: ${{secrets.DB_PASSWORD}}
 
-    env:
-      DB_NAME: ${{secrets.DB_NAME}}
-      DB_USER: ${{secrets.DB_USER}}
-      DB_PASSWORD: ${{secrets.DB_PASSWORD}}
-      DB_HOST: localhost
-
     steps:
     - uses: actions/checkout@v4
+
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v3
       with:
         python-version: ${{ matrix.python-version }}
+
+    - name: Create .env file for database
+      run: |
+        echo "DB_NAME=${{secrets.DB_NAME}}" >> ./budget_tracker_backend/budget_tracker_backend/.env
+        echo "DB_USER=${{secrets.DB_USER}}" >> ./budget_tracker_backend/budget_tracker_backend/.env
+        echo "DB_PASSWORD=${{secrets.DB_PASSWORD}}" >> ./budget_tracker_backend/budget_tracker_backend/.env
+        echo "DB_HOST=localhost" >> ./budget_tracker_backend/budget_tracker_backend/.env
+
     - name: Install Dependencies
       working-directory: ./budget_tracker_backend
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
+
     - name: Run Tests
       working-directory: ./budget_tracker_backend
       run: |
