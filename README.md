@@ -23,3 +23,6 @@ run backend:
 
 run frontend:
   npm run dev
+
+
+Note to self: remember the secret/ 
