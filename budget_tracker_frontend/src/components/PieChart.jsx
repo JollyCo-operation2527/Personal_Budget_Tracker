@@ -26,7 +26,7 @@ function CategoryPieChart({ month, year }) {
           total_spending += parseFloat(tx.total_amount);
         });
 
-        total_spending = Math.round(total_spending * 100) / 100
+        total_spending = Math.round(total_spending * 100) / 100;
 
         const chartData = Object.entries(categoryTotals).map(([category, total_amount]) => ({
           name: category,
@@ -34,7 +34,7 @@ function CategoryPieChart({ month, year }) {
         }));
 
         setData(chartData);
-        setTtm(total_spending)
+        setTtm(total_spending);
       });
   }, [month, year]);
 

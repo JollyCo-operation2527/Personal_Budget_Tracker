@@ -24,6 +24,8 @@ run backend:
 run frontend:
   npm run dev
 
+run docker:
+  docker-compose up --build
 
 
 For now, the Item class in models doesn't get used for anything.
