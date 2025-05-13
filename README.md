@@ -25,4 +25,11 @@ run frontend:
   npm run dev
 
 
+
+For now, the Item class in models doesn't get used for anything.
+My plan is to use this class to rerpresent each item in grocery receipt
+To implement: use scikit learn to train an AI model to categorize each item in the receipt into sub-category (meat, vegetable, fruit, drink, dairy, ...)
+Manually categorizing is a boring way to do this, so I want to leverage ML to do this for me.
+But this is a plan for the future.
+
 Note to self: remember the secret/ 
