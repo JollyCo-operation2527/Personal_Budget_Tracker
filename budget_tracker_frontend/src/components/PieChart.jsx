@@ -12,15 +12,21 @@ const CATEGORY_COLOURS = {
 
 function CategoryPieChart({ month, year }) {
   const [data, setData] = useState([]);
+  const [ttm, setTtm] = useState([]);  // ttm stands for total (spending) this month
 
   useEffect(() => {
     fetch(`http://127.0.0.1:8000/api/spending_by_month/?month=${month}&year=${year}`)
       .then(res => res.json())
       .then(transactions => {
         const categoryTotals = {};
+        let total_spending = 0; 
+
         transactions.forEach(tx => {
           categoryTotals[tx.category] = (categoryTotals[tx.category] || 0) + parseFloat(tx.total_amount);
+          total_spending += parseFloat(tx.total_amount);
         });
+
+        total_spending = Math.round(total_spending * 100) / 100
 
         const chartData = Object.entries(categoryTotals).map(([category, total_amount]) => ({
           name: category,
@@ -28,13 +34,14 @@ function CategoryPieChart({ month, year }) {
         }));
 
         setData(chartData);
+        setTtm(total_spending)
       });
   }, [month, year]);
 
   return (
     <>
         <div>
-        <h3>Spending in {month}/{year}</h3>
+        <h3>Spending in {month}/{year} : ${ttm}</h3>
         <PieChart width={500} height={350}>
             <Pie
             data={data}
