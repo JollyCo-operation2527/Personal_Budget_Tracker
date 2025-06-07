@@ -35,3 +35,6 @@ Manually categorizing is a boring way to do this, so I want to leverage ML to do
 But this is a plan for the future.
 
 Note to self: remember the secret/ 
+
+Note 2: If getting "invalid_grant" error (google auth exception): Delete the token pickle in /secret and run gmail_reader module again
+
